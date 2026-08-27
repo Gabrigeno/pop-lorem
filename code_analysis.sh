@@ -4,8 +4,8 @@
 #
 
 echo "PYLINT"
-pylint --reports=n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" lorem
+pylint --reports=n --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" pop_lorem
 
 echo ""
 echo "PEP8"
-pep8 lorem
+pep8 pop_lorem

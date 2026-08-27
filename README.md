@@ -1,104 +1,126 @@
-lorem
-=====
+pop-lorem
+=========
 
-`lorem` is a python lorem ipsum generator for the console.
+`pop_lorem` is a python lorem ipsum generator for the console that spits out
+pop song lyrics instead of Cicero. It is a fork of
+[per9000/lorem](https://github.com/per9000/lorem) by Per Erik Strandberg with the
+literary quotes swapped for Katy Perry, Icona Pop, Natasha Bedingfield, Britney
+Spears, Carly Rae Jepsen, Kesha and Avril Lavigne.
 
-By default it just outputs the typical stuff you would expect from a lorem ipsum generator:
+Same CLI as upstream, only the sources changed.
 
-    $ lorem
+Install
+-------
+
+Single python script, no dependencies. Clone and put it on your `PATH`:
+
+    $ git clone https://github.com/Gabrigeno/pop-lorem.git
+    $ ln -s "$PWD/pop-lorem/pop_lorem" ~/.local/bin/pop_lorem   # or /usr/local/bin
+
+Or just copy it: `install -m 755 pop-lorem/pop_lorem /usr/local/bin/pop_lorem`.
+
+Usage
+-----
+
+By default it still outputs the classic stuff:
+
+    $ ./pop_lorem
     Lorem ipsum dolor sit amet,
 
+Pick a song and a number of words:
 
-But you can specify the number of words you want
+    $ ./pop_lorem -n 7 --katy
+    You change your mind like a girl
 
-    $ lorem -n 2
-    lorem ipsum
+Or select the source by index (0 is lorem, 1 is Katy, 2 is Icona Pop, ...):
 
+    $ ./pop_lorem -q 3 -n 6
+    I am unwritten Can't read my
 
-Or the origin of the quote (4 is Strindberg).
+Lines:
 
-    $ lorem -n 7 -q 4
-    han kom som ett yrväder en aprilafton
+    $ ./pop_lorem --circus -l 2
+    There's only two types of people in the world The ones that entertain, and the
+    ones that observe Well, baby, I'm a put-on-a-show kind of girl Don't like the
 
+Sentences (split on `.;!?` — songs without punctuation count as one long sentence):
 
-If you prefer the to specify the number of characters then go ahead and do so:
+    $ ./pop_lorem --carley -s 1
+    I threw a wish in the well, Don't ask me, I'll never tell I looked to you as it
+    fell, And now you're in my way I'd trade my soul for a wish, Pennies and dimes
+    for a kiss I wasn't looking for this, But now you're in my way Your stare was
+    holdin', Ripped jeans, skin was showin' Hot night, wind was blowin' Where you
+    think you're going, baby.
 
-    $ lorem -c79 -q 7
-    At first, God created the sky, and the Earth. And the Earth was helter skelter,
+Characters (beware of the trailing newline):
 
-But beware of the new line character at the end:
+    $ ./pop_lorem --kesha -c 40 | wc -c
+    41
 
-    $ lorem -c79 -q 7 | wc -c
-    80
+Case and shuffling:
 
-    $ lorem -c79 -q 7 | hd | tail -n 2
-    00000040  68 65 6c 74 65 72 20 73  6b 65 6c 74 65 72 2c 0a  |helter skelter,.|
-    00000050
+    $ ./pop_lorem --lavigne --upper -n 4
+    UH HUH, LIFE'S LIKE
 
+    $ ./pop_lorem --icona --lower -n 8 --randomize
+    on watched, down different into the don't love
 
-If the number of lines is more your style then use lines instead.
+Help
+----
 
-    $ lorem -l 3 --spook
-    Asset csystems BATF Blowpipe Soviet South Africa wire transfer. NSA event
-    security Compsec spies benelux Sears Tower airframe red noise. Commecen Steve
-    Case SCUD missile Kosovo quarter bce Bellcore SAPO. Asset IRA TWA rail gun CDMA
+    $ ./pop_lorem -h
+    usage: pop_lorem [-h] [-v] [-t] [--cols COLS] [--words N] [--sentences S]
+                     [--lines L] [--chars C] [--lorem] [--katy] [--icona] [--rain]
+                     [--circus] [--call_me_maybe] [--die_young] [--complicated]
+                     [-q Q] [--lower] [--upper] [--randomize]
 
+    pop-lorem - Create more or less random lorem ipsum text.
 
-The lorems can also be randomized, and the case changed.
-
-    $ lorem --bible -s 1 --randomize
-    Earth bird, God the there from darkness the oversee and so?
-
-    $ lorem --strandberg --upper -n 3
-    FOO. FOO HOO?
-
-    $ lorem --poe --lower -n 11
-    once upon a midnight dreary, while i pondered, weak and weary.
-
-    $ lorem --poe --lower -n 11 --randomize
-    i there is purple nothing forgiveness darkness separate sorrow—sorrow word
-    lenore.
-
-The help
-
-    $ lorem -h
-    usage: lorem [-h] [-v] [-t] [--cols COLS] [--words N] [--sentences S]
-                 [--lines L] [--chars C] [--lorem] [--decamerone] [--faust]
-                 [--fleurs] [--strindberg] [--spook] [--poe] [--strandberg]
-                 [--bible] [-q Q] [--lower] [--upper] [--randomize]
-
-    lorem - Create more or less random lorem ipsum text.
-
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
       -v, --version         show program's version number and exit
       -t                    run self-tests and exit
-      --cols COLS           override line width - default 80
+      --cols COLS           override line width - default 80 (set to 0 for no line
+                            returns)
 
     output format (mutually exclusive):
-      --words N, -n N       number of words
-      --sentences S, -s S   number of sentences
-      --lines L, -l L       number of lines
-      --chars C, -c C       number of characters (excl. final newline)
+      --words, -n N         number of words
+      --sentences, -s S     number of sentences
+      --lines, -l L         number of lines
+      --chars, -c C         number of characters (excl. final newline)
 
     quote selection:
       --lorem, --cicero     "Lorem ipsum dolor sit amet..."
-      --decamerone, --boccaccio
-                            "Ser Cepperello con una falsa confessione..."
-      --faust, --goethe     "Ihr naht euch wieder..."
-      --fleurs, --beaudelaire
-                            "Lorsque, par un décret..."
-      --strindberg, --hemsöborna
-                            "Han kom som ett yrväder en aprilafton..."
-      --spook, --emacs      "Asset csystems BATF Blowpipe Soviet..."
-      --poe, --raven        "Once upon a midnight dreary, while I pondered, weak
-                            and weary,..."
-      --strandberg, --foo   "Foo. Foo hoo? Foo bar. Foo bar, baz..."
-      --bible, --genesis    "At first, God created the sky, and..."
-      -q Q, --quote Q       select source by index instead, q = 1, 2, ...
+      --katy, --hot_n_cold  "You change your mind like a girl changes clothes ..."
+      --icona, --i_love_it  "I dont care, I love it..."
+      --rain, --unwritten   "feels the rain..."
+      --circus, --britney   "There's only two types of people in the world..."
+      --call_me_maybe, --carley
+                            "call me maybe..."
+      --die_young, --kesha  "We re gonna die youg..."
+      --complicated, --lavigne
+                            "Chill out, what ya yellin for ..."
+      -q, --quote Q         select source by index instead, q = 1, 2, ...
 
     options for sentences:
       --lower               all lower case (default false)
       --upper               all upper case (default false)
       --randomize           randomize order (default false)
 
+Tests
+-----
+
+    $ ./pop_lorem -t        # doctests
+    $ ./sanitycheck.sh      # end-to-end word/sentence/char/line counts
+    $ ./code_analysis.sh    # pylint + pep8
+
+License
+-------
+
+GNU General Public License v3 or later, see [LICENSE](LICENSE).
+
+* Copyright (C) 2014 Per Erik Strandberg — original `lorem`
+* Copyright (C) 2026 Gabriele Genovesi — `pop-lorem` fork
+
+Song lyrics remain the property of their respective owners and are included
+only as placeholder text.

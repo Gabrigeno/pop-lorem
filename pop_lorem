@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 
 """
-A lorem ipsum generator for the terminal.
+A pop-song lorem ipsum generator for the terminal.
 
-Run lorem -h for more details.
+Run pop_lorem -h for more details.
 
-Download and read more at
- * https://github.com/per9000
- * http://www.pererikstrandberg.se/blog/index.cgi?page=LoremIpsumGenerator
+Fork of `lorem` by Per Erik Strandberg:
+ * https://github.com/Gabrigeno/pop-lorem  (this fork)
+ * https://github.com/per9000/lorem        (upstream)
 
 """
 
 # Copyright 2014 Per Erik Strandberg: <per9000 at gmail dot com>
+# Copyright 2026 Gabriele Genovesi (pop-lorem fork)
 #
 # This program is free software you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -43,7 +44,7 @@ import sys
 SHORTNAME = "pop-lorem"
 PROGRAM = "Pop Song Generator For Lorem Ipsum (%s)" % SHORTNAME
 VERSION = "0.1.0"
-COPYR = "Copyright (C) 2026 Per Gabriele Genovesi"
+COPYR = "Copyright (C) 2014 Per Erik Strandberg\nCopyright (C) 2026 Gabriele Genovesi"
 GPLV3 = """This is free software, and you are welcome to redistribute it
 under the GNU General Public License 3+ <http://www.gnu.org/licenses/gpl.html>
 %s comes with NO WARRANTY, to the extent permitted by law.""" % SHORTNAME
@@ -565,7 +566,7 @@ def parse_args(arguments=None):
                         help='"feels the rain..."')
     qgroup.add_argument('--circus', '--britney', dest='source',
                         action='store_const', const='circus',
-                        help='"Once upon a midnight dreary..."')
+                        help='"There\'s only two types of people in the world..."')
     qgroup.add_argument('--call_me_maybe', '--carley', dest='source',
                         action='store_const', const='carley',
                         help='"call me maybe..."')
@@ -645,7 +646,7 @@ def get_sentences(lorem, n):
     seps = ['.', ';', '!', '?']
     for sep in seps:
         lorem = lorem.replace(sep, '|')
-    sentences = lorem.split('|')[:-1]
+    sentences = lorem.split('|')[:-1] or [lorem]
 
     output = list()
     while (m < n) and ((n-m) > len(sentences)):
