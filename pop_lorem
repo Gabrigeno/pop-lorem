@@ -1,0 +1,760 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+A lorem ipsum generator for the terminal.
+
+Run lorem -h for more details.
+
+Download and read more at
+ * https://github.com/per9000
+ * http://www.pererikstrandberg.se/blog/index.cgi?page=LoremIpsumGenerator
+
+"""
+
+# Copyright 2014 Per Erik Strandberg: <per9000 at gmail dot com>
+#
+# This program is free software you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301, USA.
+
+# Thanks to
+#  * Barre, for the n overflow solution
+#  * http://lipsum.sourceforge.net/whatis.php for source lorems and inspiration
+#    (of initial lorem implementation)
+#  * The EMACS spook function
+
+from argparse import ArgumentParser
+from random import shuffle, choice
+from textwrap import fill
+import sys
+
+SHORTNAME = "pop-lorem"
+PROGRAM = "Pop Song Generator For Lorem Ipsum (%s)" % SHORTNAME
+VERSION = "0.1.0"
+COPYR = "Copyright (C) 2026 Per Gabriele Genovesi"
+GPLV3 = """This is free software, and you are welcome to redistribute it
+under the GNU General Public License 3+ <http://www.gnu.org/licenses/gpl.html>
+%s comes with NO WARRANTY, to the extent permitted by law.""" % SHORTNAME
+
+
+def get_quote(source=None, idx=None):
+    """Get a quote"""
+    i = 0
+
+    if source in ['cicero', 'lorem'] or idx == i:
+        return """Lorem ipsum dolor sit amet, consectetuer adipiscing
+        elit. Aenean commodo ligula eget dolor. Aenean massa. Cum
+        sociis natoque penatibus et magnis dis parturient montes,
+        nascetur ridiculus mus. Donec quam felis, ultricies nec,
+        pellentesque eu, pretium quis, sem. Nulla consequat massa quis
+        enim. Donec pede justo, fringilla vel, aliquet nec, vulputate
+        eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis
+        vitae, justo. Nullam dictum felis eu pede mollis
+        pretium. Integer tincidunt. Cras dapibus. Vivamus elementum
+        semper nisi. Aenean vulputate eleifend tellus. Aenean leo
+        ligula, porttitor eu, consequat vitae, eleifend ac,
+        enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a,
+        tellus. Phasellus viverra nulla ut metus varius
+        laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies
+        nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget
+        dui."""
+
+    i += 1
+    if source in ['hot_n_cold', 'katy'] or idx == i:
+        return """You change your mind like a girl changes clothes yeah, you PMS like a 
+        bitch i would know and you overthink always speak cryptically i should know
+        that you're no good for me 'cause you're hot, then you're cold you're yes, then you're no
+        you're in, then you're out
+        you're up, then you're down
+        You're wrong when it's right
+        It's black, and it's white
+        We fight, we break up
+        We kiss, we make up
+        you don't really want to stay, no
+        (You) but you don't really want to go
+        You're hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down
+        We used to be just like twins
+        So in sync
+        The same energy now's a dead battery
+        Used to laugh (used to laugh) 'bout nothing ('bout nothing)
+        Now you're plain (now you're plain) boring (boring)
+        I should know (I should know)
+        That you're not gonna change
+        'Cause you're hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down
+        You're wrong when it's right
+        It's black, and it's white
+        We fight, we break up
+        We kiss, we make up
+        you don't really want to stay, no
+        (You) but you don't really want to go
+        Hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down
+        Someone call the doctor
+        Got a case of a love bipolar
+        Stuck on a roller coaster
+        Can't get off this ride
+        You change your mind
+        Like a girl changes clothes
+        'Cause you're hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down
+        You're wrong when it's right
+        It's black, and it's white
+        We fight, we break up
+        We kiss, we make up
+        You're hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down
+        You're wrong when it's right
+        It's black, and it's white
+        We fight, we break up
+        We kiss, we make up
+        you don't really want to stay, no
+        (You) but you don't really want to go
+        Hot, then you're cold
+        You're yes, then you're no
+        You're in, then you're out
+        You're up, then you're down"""
+
+    i += 1
+    if source in ['i_love_it', 'icona'] or idx == i:
+        return """I got this feeling on the summer day when you were gone
+        I crashed my car into the bridge, I watched, I let it burn
+        I threw your shit into a bag and pushed it down the stairs
+        I crashed my car into the bridge
+        I don't care, I love it
+        I don't care
+        I got this feeling on the summer day when you were gone
+        I crashed my car into the bridge, I watched, I let it burn
+        I threw your shit into a bag and pushed it down the stairs
+        I crashed my car into the bridge
+        I don't care, I love it
+        I don't care
+        You're on a different road, I'm in the Milky Way
+        You want me down on Earth, but I am up in space
+        You're so damn hard to please, we gotta kill this switch
+        You're from the '70s, but I'm a '90s bitch
+        I love it
+        I love it
+        I got this feeling on the summer day when you were gone
+        I crashed my car into the bridge, I watched, I let it burn
+        I threw your shit into a bag and pushed it down the stairs
+        I crashed my car into the bridge
+        I don't care, I love it
+        I don't care, I love it, I love it
+        I don't care, I love it
+        I don't care
+        You're on a different road, I'm in the Milky Way
+        You want me down on Earth, but I am up in space
+        You're so damn hard to please, we gotta kill this switch
+        You're from the '70s, but I'm a '90s bitch
+        I don't care, I love it
+        I don't care, I love it, I love it
+        I don't care, I love it
+        I don't care, I love it, I love it
+        I don't care
+        I love it
+        """
+    i += 1
+    if source in ['unwritten', 'rain'] or idx == i:
+        return """I am unwritten
+        Can't read my mind
+        I'm undefined
+        I'm just beginning
+        The pen's in my hand
+        Ending unplanned
+        Staring at the blank page before you
+        Open up the dirty window
+        Let the sun illuminate the words that you could not find
+        Reaching for something in the distance
+        So close you can almost taste it
+        Release your inhibitions
+        Feel the rain on your skin
+        No one else can feel it for you
+        Only you can let it in
+        No one else, no one else
+        Can speak the words on your lips
+        Drench yourself in words unspoken
+        Live your life with arms wide open
+        Today is where your book begins
+        The rest is still unwritten
+        Oh, oh, oh
+        I break tradition
+        Sometimes my tries are outside the lines
+        We've been conditioned to not make mistakes
+        But I can't live that way
+        Staring at the blank page before you
+        Open up the dirty window
+        Let the sun illuminate the words that you could not find
+        Reaching for something in the distance
+        So close you can almost taste it
+        Release your inhibitions
+        Feel the rain on your skin
+        No one else can feel it for you
+        Only you can let it in
+        No one else, no one else
+        Can speak the words on your lips
+        Drench yourself in words unspoken
+        Live your life with arms wide open
+        Today is where your book begins
+        Feel the rain on your skin
+        No one else can feel it for you
+        Only you can let it in
+        No one else, no one else
+        Can speak the words on your lips
+        Drench yourself in words unspoken
+        Live your life with arms wide open
+        Today is where your book begins
+        The rest is still unwritten
+        Staring at the blank page before you
+        Open up the dirty window
+        Let the sun illuminate the words that you could not find
+        Reaching for something in the distance
+        So close you can almost taste it
+        Release your inhibitions
+        Feel the rain on your skin
+        No one else can feel it for you
+        Only you can let it in
+        No one else, no one else
+        Can speak the words on your lips
+        Drench yourself in words unspoken
+        Live your life with arms wide open
+        Today is where your book begins
+        Feel the rain on your skin
+        No one else can feel it for you
+        Only you can let it in
+        No one else, no one else
+        Can speak the words on your lips
+        Drench yourself in words unspoken
+        Live your life with arms wide open
+        Today is where your book begins
+        The rest is still unwritten
+        The rest is still unwritten
+        The rest is still unwritten
+        Oh, yeah, yeah
+        """
+
+    i += 1
+    if source in ['circus', 'britney'] or idx == i:
+        return """There's only two types of people in the world
+        The ones that entertain, and the ones that observe
+        Well, baby, I'm a put-on-a-show kind of girl
+        Don't like the back seat, gotta be first (oh-oh)
+        I'm like the ring leader, I call the shots (call the shots)
+        I'm like a firecracker, I make it hot
+        When I put on a show
+        I feel the adrenaline moving through my veins
+        Spotlight on me and I'm ready to break
+        I'm like a performer, the dance floor is my stage
+        Better be ready, hope that you feel the same
+        All eyes on me in the center of the ring just like a circus
+        When I crack that whip everybody gon' trip just like a circus
+        Don't stand there watching me, follow me, show me what you can do
+        Everybody let go, we can make a dance floor just like a circus
+        There's only two types of guys out there
+        Ones that can hang with me and ones that are scared
+        So, baby, I hope that you came prepared
+        I run a tight ship, so beware
+        I'm like the ring leader, I call the shots (call the shots)
+        I'm like a firecracker, I make it hot
+        When I put on a show
+        I feel the adrenaline moving through my veins
+        Spotlight on me and I'm ready to break
+        I'm like a performer, the dance floor is my stage
+        Better be ready, hope that you feel the same
+        All eyes on me in the center of the ring just like a circus
+        When I crack that whip everybody gon' trip just like a circus
+        Don't stand there watching me, follow me, show me what you can do
+        Everybody let go, we can make a dance floor just like a circus
+        Let's go
+        Let me see what you can do
+        I'm runnin' this (like-like-like-like a circus)
+        Yeah, like a what? (Like-like-like-like a circus)
+        All eyes on me in the center of the ring just like a circus
+        When I crack that whip everybody gon' trip just like a circus
+        Don't stand there watching me, follow me, show me what you can do
+        Everybody let go, we can make a dance floor just like a circus
+        All eyes on me in the center of the ring just like a circus
+        When I crack that whip everybody gon' trip just like a circus
+        Don't stand there watching me, follow me, show me what you can do
+        Everybody let go, we can make a dance floor just like a circus."""
+
+    i += 1
+    if source in ['call_me_maybe', 'carley'] or idx == i:
+
+        return """I threw a wish in the well,
+        Don't ask me, I'll never tell
+        I looked to you as it fell,
+        And now you're in my way
+        I'd trade my soul for a wish,
+        Pennies and dimes for a kiss
+        I wasn't looking for this,
+        But now you're in my way
+        Your stare was holdin',
+        Ripped jeans, skin was showin'
+        Hot night, wind was blowin'
+        Where you think you're going, baby?
+        Hey, I just met you,
+        And this is crazy,
+        But here's my number,
+        So call me, maybe?
+        It's hard to look right,
+        At you baby,
+        But here's my number,
+        So call me, maybe?
+        Hey, I just met you,
+        And this is crazy,
+        But here's my number,
+        So call me, maybe?
+        And all the other boys,
+        Try to chase me,
+        But here's my number,
+        So call me, maybe?
+        You took your time with the call,
+        I took no time with the fall
+        You gave me nothing at all,
+        But still, you're in my way
+        I beg, and borrow and steal
+        Have foresight and it's real
+        I didn't know I would feel it,
+        But it's in my way
+        Your stare was holdin',
+        Ripped jeans, skin was showin'
+        Hot night, wind was blowin'
+        Where you think you're going, baby?
+        Hey, I just met you,
+        And this is crazy,
+        But here's my number,
+        So call me, maybe?
+        It's hard to look right,
+        At you baby,
+        But here's my number,
+        So call me, maybe?
+        Hey, I just met you,
+        And this is crazy,
+        But here's my number,
+        So call me, maybe?
+        And all the other boys,
+        Try to chase me,
+        But here's my number,
+        So call me, maybe?
+        Before you came into my life
+        I missed you so bad
+        I missed you so bad
+        I missed you so, so bad
+        Before you came into my life
+        I missed you so bad
+        And you should know that
+        I missed you so, so bad
+        It's hard to look right,
+        At you baby,
+        But here's my number,
+        So call me, maybe?
+        Hey, I just met you,
+        And this is crazy,
+        But here's my number,
+        So call me, maybe?
+        And all the other boys,
+        Try to chase me,
+        But here's my number,
+        So call me, maybe?
+        Before you came into my life
+        I missed you so bad
+        I missed you so bad
+        I missed you so, so bad
+        Before you came into my life
+        I missed you so bad
+        And you should know that
+        So call me, maybe?"""
+
+    i += 1
+    if source in ['die_young', 'kesha'] or idx == i:
+        return """I hear your heart beat to the beat of the drums
+        Oh, what a shame that you came here with someone
+        So while you're here in my arms
+        Let's make the most of the night like we're gonna die young
+        We're gonna die young
+        We're gonna die young
+        Let's make the most of the night like we're gonna die young
+        Let's make the most of the night like we're gonna die young
+        Young hearts, out our minds
+        Runnin' till we outta time
+        Wild childs, lookin' good
+        Livin' hard just like we should
+        Don't care whose watching when we tearing it up (you know)
+        That magic that we got nobody can touch (for sure)
+        Looking for some trouble tonight (yeah)
+        Take my hand, I'll show you the wild side
+        Like it's the last night of our lives (uh huh)
+        We'll keep dancing till we die
+        I hear your heart beat to the beat of the drums
+        Oh, what a shame that you came here with someone
+        So while you're here in my arms
+        Let's make the most of the night like we're gonna die young
+        We're gonna die young
+        We're gonna die young
+        Let's make the most of the night like we're gonna die young
+        Let's make the most of the night like we're gonna die
+        Young hunks, taking shots
+        Stripping down to dirty socks
+        Music up, gettin' hot
+        Kiss me, give me all you've got
+        It's pretty obvious that you've got a crush (you know)
+        That magic in your pants, it's making me blush (for sure)
+        Looking for some trouble tonight (yeah)
+        Take my hand I'll show you the wild side
+        Like it's the last night of our lives (uh huh)
+        We'll keep dancing till we die (till we die)
+        I hear your heart beat to the beat of the drums
+        Oh, what a shame that you came here with someone
+        So while you're here in my arms,
+        Let's make the most of the night like we're gonna die young
+        I hear your heart beat to the beat of the drums
+        Oh, what a shame that you came here with someone
+        So while you're here in my arms
+        Let's make the most of the night like we're gonna die young
+        We're gonna die young
+        We're gonna die young
+        Let's make the most of the night like we're gonna die young"""
+
+    i += 1
+    if source in ['complicated', 'lavigne'] or idx == i:
+        return """Uh huh, life's like this
+        Uh huh, uh huh, that's the way it is
+        'Cause life's like this
+        Uh huh, uh huh, that's the way it is
+        Chill out, what ya yellin' for?
+        Lay back, it's all been done before
+        And if, you could only let it be, you will see
+        I like you the way you are
+        When we're driving in your car
+        And you're talking to me one on one, but you become
+        Somebody else
+        'Round everyone else
+        You're watching your back
+        Like you can't relax
+        You try to be cool
+        You look like a fool to me
+        Tell me
+        Why'd you have to go and make things so complicated?
+        I see the way you're acting like you're somebody else
+        Gets me frustrated
+        Life's like this, you
+        And you fall, and you crawl, and you break
+        And you take what you get, and you turn it into
+        Honesty and promise me I'm never gonna find you fake it
+        No, no, no
+        You come over unannounced
+        Dressed up like you're somethin' else
+        Where you are and where it's at you see
+        You're making me
+        Laugh out when you strike your pose
+        Take off all your preppy clothes
+        You know you're not fooling anyone
+        When you become
+        Somebody else
+        'Round everyone else
+        You're watching your back
+        Like you can't relax
+        You try to be cool
+        You look like a fool to me
+        Tell me
+        Why'd you have to go and make things so complicated?
+        I see the way you're acting like you're somebody else
+        Gets me frustrated
+        Life's like this, you
+        And you fall, and you crawl, and you break
+        And you take what you get, and you turn it into
+        Honesty and promise me I'm never gonna find you fake it
+        No, no, no
+        No, no, no
+        No, no, no
+        No, no, no
+        No, no, no (no, no)
+        Chill out, what ya yellin' for?
+        Lay back, it's all been done before
+        And if you could only let it be
+        You will see
+        Somebody else
+        'Round everyone else
+        You're watching your back
+        Like you can't relax
+        You try to be cool
+        You look like a fool to me
+        Tell me
+        Why'd you have to go and make things so complicated?
+        I see the way you're acting like you're somebody else
+        Gets me frustrated
+        Life's like this, you
+        And you fall, and you crawl, and you break
+        And you take what you get, and you turn it into
+        Honesty and promise me I'm never gonna find you fake it
+        No, no
+        Why'd you have to go and make things so complicated?
+        I see the way you're acting like you're somebody else
+        Gets me frustrated
+        Life's like this, you
+        And you fall, and you crawl, and you break
+        And you take what you get, and you turn it into
+        Honesty and promise me I'm never gonna find you fake it
+        No, no, no"""
+
+def parse_args(arguments=None):
+    """
+    Parse command line argumets, or the given string
+        >>> opt = parse_args(['-n', '3'])
+        >>> opt.words == 3
+        True
+    """
+    desc = "%s - Create more or less random lorem ipsum text." % SHORTNAME
+    vinfo = "%s version %s\n\n%s\n\n%s" % (PROGRAM, VERSION, COPYR, GPLV3)
+
+    parser = ArgumentParser(description=desc)
+    parser.add_argument('-v', '--version', action='store_const',
+                        help="show program's version number and exit",
+                        const=vinfo)
+    parser.add_argument('-t', action='store_true',
+                        help='run self-tests and exit')
+    parser.add_argument('--cols', action='store', type=int, metavar='COLS',
+                        default=80, help='override line width - default 80 (set to 0 for no line returns)')
+
+    ogroup = parser.add_argument_group('output format (mutually exclusive)')
+    ogroup.add_argument('--words', '-n', action='store', type=int, metavar='N',
+                        help='number of words')
+    ogroup.add_argument('--sentences', '-s', action='store', type=int,
+                        metavar='S', help='number of sentences')
+    ogroup.add_argument('--lines', '-l', action='store', type=int, metavar='L',
+                        help='number of lines')
+    ogroup.add_argument('--chars', '-c', action='store', type=int, metavar='C',
+                        help='number of characters (excl. final newline)')
+
+    qgroup = parser.add_argument_group('quote selection')
+    qgroup.add_argument('--lorem', '--cicero', action='store_const',
+                        const='lorem', dest='source', default='lorem',
+                        help='"Lorem ipsum dolor sit amet..."')
+    qgroup.add_argument('--katy', '--hot_n_cold', dest='source',
+                        action='store_const', const='katy',
+                        help='"You change your mind like a girl changes clothes ..."')
+    qgroup.add_argument('--icona', '--i_love_it', action='store_const',
+                        const='icona', dest='source',
+                        help='"I dont care, I love it..."')
+    qgroup.add_argument('--rain', '--unwritten', dest='source',
+                        action='store_const', const='rain',
+                        help='"feels the rain..."')
+    qgroup.add_argument('--circus', '--britney', dest='source',
+                        action='store_const', const='circus',
+                        help='"Once upon a midnight dreary..."')
+    qgroup.add_argument('--call_me_maybe', '--carley', dest='source',
+                        action='store_const', const='carley',
+                        help='"call me maybe..."')
+    qgroup.add_argument('--die_young', '--kesha', dest='source',
+                        action='store_const', const='die_young',
+                        help='"We re gonna die youg..."')
+    qgroup.add_argument('--complicated', '--lavigne', dest='source',
+                        action='store_const', const='complicated',
+                        help='"Chill out, what ya yellin for ..."')
+    qgroup.add_argument('-q', '--quote', action='store', type=int, metavar='Q',
+                        help='select source by index instead, q = 1, 2, ...')
+
+    sgroup = parser.add_argument_group('options for sentences')
+    sgroup.add_argument('--lower', action='store_const', dest='case',
+                        const='lower', default=None,
+                        help='all lower case (default false)')
+    sgroup.add_argument('--upper', action='store_const', dest='case',
+                        const='upper', default=None,
+                        help='all upper case (default false)')
+    sgroup.add_argument('--randomize', action='store_true',
+                        help='randomize order (default false)')
+
+    if arguments:
+        opt = parser.parse_args(arguments)
+    else:
+        opt = parser.parse_args()
+    check_args(parser, opt)
+    return opt
+
+
+def check_args(parser, opt):
+    """Raise parser.error if needed or not."""
+    if opt.chars is None and opt.words is None and opt.lines is None and \
+            opt.sentences is None:
+        opt.words = 5
+
+    for arg in [opt.chars, opt.words, opt.lines, opt.sentences]:
+        if arg is not None and arg < 0:
+            parser.error("Only non-negative values are allowed.")
+
+    if sum([bool(arg is not None) for arg in [opt.chars, opt.words, opt.lines,
+                                              opt.sentences]]) > 1:
+        parser.error("Use only one of chars, words, lines or sentences.")
+    return
+
+
+def randomize(lorem):
+    """Randomize the order of the lorem."""
+    words = lorem.split(' ')
+    shuffle(words)
+    words[0] = words[0][0].upper() + words[0][1:]
+    return ' '.join(words)
+
+
+def do_case(lorem, case):
+    """Set upper or lower case, or do nothing"""
+    if case == 'upper':
+        return lorem.upper()
+    elif case == 'lower':
+        return lorem.lower()
+    return lorem
+
+
+def no_linebreaks(lorem):
+    """Remove the new line chars."""
+    lorem = lorem.replace('\n', ' ')
+    lorem = lorem.replace('  ', ' ')
+    lorem = lorem.replace('  ', ' ')
+    return lorem
+
+
+def get_sentences(lorem, n):
+    """Get n sentences"""
+    lorem = no_linebreaks(lorem)
+
+    m = 0
+    seps = ['.', ';', '!', '?']
+    for sep in seps:
+        lorem = lorem.replace(sep, '|')
+    sentences = lorem.split('|')[:-1]
+
+    output = list()
+    while (m < n) and ((n-m) > len(sentences)):
+        output += sentences
+        m += len(sentences)
+
+    output += sentences[0:n-m]
+
+    lorem = ""
+    for sentence in output:
+        sentence = sentence.strip()
+        lorem += sentence[0].upper() + sentence[1:] + choice(seps) + " "
+    lorem = lorem.rstrip()
+    return lorem
+
+
+def get_lines(lorem, n):
+    """Get n lines"""
+
+    lorem = lorem.replace('\n\n', '\n')
+    lines = lorem.split('\n')
+    m = 0
+
+    output = list()
+    while (m < n) and ((n-m) > len(lines)):
+        output += lines
+        m += len(lines)
+
+    output += lines[0:n-m]
+
+    lorem = '\n'.join(output).rstrip()
+    return lorem
+
+
+def get_words(lorem, n):
+    """Get n words"""
+    lorem = no_linebreaks(lorem).rstrip()
+    words = lorem.split(' ')
+    m = 0
+    output = list()
+
+    while (m < n) and ((n-m) > len(words)):
+        output += words
+        m += len(words)
+
+    output += words[0:n-m]
+    return ' '.join(output)
+
+
+def get_chars(lorem, n):
+    """Get n chars."""
+    lorem = no_linebreaks(lorem).rstrip() + ' '
+    m = 0
+    output = ''
+
+    while (m < n) and ((n-m) > len(lorem)):
+        output += lorem
+        m += len(lorem)
+
+    output += lorem[0:n-m]
+    return output
+
+
+def do_lorem(opt):
+    """Get the lorem and apply the arguments"""
+
+    if opt.quote:
+        lorem = get_quote(idx=opt.quote)
+    else:
+        lorem = get_quote(opt.source)
+
+    for spaces in ['\n', '    ', '    ', '  ', '  ']:
+        lorem = lorem.replace(spaces, ' ')
+
+    if opt.randomize:
+        lorem = randomize(lorem)
+
+    if opt.cols == 0:
+        lorem = fill(lorem, width=80)
+        lorem = no_linebreaks(lorem)
+    else:
+        lorem = fill(lorem, width=opt.cols)
+
+    if opt.sentences is not None:
+        lorem = get_sentences(lorem, opt.sentences)
+    elif opt.chars is not None:
+        lorem = get_chars(lorem, opt.chars)
+    elif opt.words is not None:
+        lorem = get_words(lorem, opt.words)
+    elif opt.lines is not None:
+        lorem = get_lines(lorem, opt.lines)
+
+    if opt.lines is None and opt.chars is None:
+        if opt.cols == 0:
+            lorem = fill(lorem, width=80)
+            lorem = no_linebreaks(lorem)
+        else:
+            lorem = fill(lorem, width=opt.cols)
+
+    return do_case(lorem, opt.case)
+
+
+if __name__ == '__main__':
+    my_args = parse_args()
+    if my_args.t:
+        import doctest
+        res = doctest.testmod()
+        print("Tested %s cases, %s failed." % (res.attempted, res.failed))
+    elif my_args.version:
+        print(my_args.version)
+    else:
+        print(do_lorem(my_args))
